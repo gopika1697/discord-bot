@@ -4,6 +4,7 @@ import random
 import discord
 import json
 import urllib.request
+import requests
 
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -18,6 +19,11 @@ bot = commands.Bot(command_prefix='=')
 async def on_ready():
     print(f'{bot.user.name} has connected to Discord!')
 
+@bot.command(name="commands", help="Lists out all commands")
+async def commands(ctx):
+    command_help = "Available commands : b99, joke, gif, yomama. \n For command help, use '=help <command_name>'"
+    await ctx.send(command_help)
+
 @bot.command(name="b99", help='Responds with a random quote from Brooklyn 99')
 async def nine_nine(ctx):
     brooklyn_99_quotes = [
@@ -28,10 +34,6 @@ async def nine_nine(ctx):
 
     response = random.choice(brooklyn_99_quotes)
     await ctx.send(response)
-
-@bot.command(name="joke", help='Responds with a random joke')
-async def nine_nine(ctx, person):
-    pass
 
 @bot.command(name="gif")
 async def giphy(ctx, search):
@@ -48,9 +50,16 @@ async def giphy(ctx, search):
 
 @bot.command(name="yomama")
 async def yomama(ctx):
-    url = urllib.request.urlopen('https://api.yomomma.info/')
-    data = json.loads(url.read())
+    req = requests.get('https://api.yomomma.info/')
+    data = req.json()
     await ctx.send(data['joke'])
+
+@bot.command(name="joke", help="Responds with a random dark joke")
+async def joke(ctx):
+    req = requests.get('https://sv443.net/jokeapi/v2/joke/Dark?type=twopart')
+    data = req.json()
+    joke = data['setup'] + " \n" + data['delivery']
+    await ctx.send(joke)
 
 
 bot.run(TOKEN)
